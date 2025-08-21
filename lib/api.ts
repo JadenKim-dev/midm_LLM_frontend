@@ -1,31 +1,14 @@
-export interface Session {
-  session_id: string
-  created_at: string
-  last_accessed: string
-  metadata?: Record<string, any>
-}
-
-export interface Message {
-  message_id: string
-  session_id: string
-  role: 'user' | 'assistant'
-  content: string
-  created_at: string
-  token_usage?: Record<string, any>
-}
-
-export interface ChatResponse {
-  session_id: string
-  messages: Message[]
-  total_count: number
-}
-
-export interface HealthStatus {
-  status: string
-  timestamp: string
-  llm_server_available: boolean
-  database_connected: boolean
-}
+import { 
+  Session, 
+  Message, 
+  ChatResponse, 
+  HealthStatus, 
+  Document,
+  DocumentUploadResponse,
+  DocumentListResponse,
+  DocumentChunksResponse,
+  ChatRequest
+} from './types'
 
 export class ApiClient {
   private baseUrl: string
@@ -72,6 +55,7 @@ export class ApiClient {
       max_new_tokens?: number
       temperature?: number
       do_sample?: boolean
+      use_rag?: boolean
     }
   ): Promise<ReadableStream> {
     const response = await fetch(`${this.baseUrl}/chat`, {
@@ -85,6 +69,7 @@ export class ApiClient {
         max_new_tokens: options?.max_new_tokens || 10000,
         temperature: options?.temperature || 0.7,
         do_sample: options?.do_sample !== false,
+        use_rag: options?.use_rag || false,
       }),
     })
 
@@ -109,6 +94,66 @@ export class ApiClient {
 
     if (!response.ok) {
       throw new Error(`Health check failed: ${response.status}`)
+    }
+
+    return response.json()
+  }
+
+  async uploadDocument(file: File, sessionId: string): Promise<DocumentUploadResponse> {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('session_id', sessionId)
+
+    const response = await fetch(`${this.baseUrl}/documents`, {
+      method: 'POST',
+      body: formData,
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to upload document: ${response.status}`)
+    }
+
+    return response.json()
+  }
+
+  async getSessionDocuments(sessionId: string): Promise<DocumentListResponse> {
+    const response = await fetch(`${this.baseUrl}/documents?session_id=${sessionId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to get documents: ${response.status}`)
+    }
+
+    return response.json()
+  }
+
+  async deleteDocument(documentId: string): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/documents/${documentId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to delete document: ${response.status}`)
+    }
+  }
+
+  async getDocumentChunks(documentId: string): Promise<DocumentChunksResponse> {
+    const response = await fetch(`${this.baseUrl}/documents/${documentId}/chunks`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to get document chunks: ${response.status}`)
     }
 
     return response.json()
