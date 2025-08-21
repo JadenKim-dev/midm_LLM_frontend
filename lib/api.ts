@@ -18,7 +18,7 @@ export class ApiClient {
   }
 
   async createSession(metadata?: Record<string, any>): Promise<Session> {
-    const response = await fetch(`${this.baseUrl}/sessions`, {
+    const response = await fetch(`${this.backendUrl}/sessions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ export class ApiClient {
   }
 
   async getMessages(sessionId: string): Promise<ChatResponse> {
-    const response = await fetch(`${this.baseUrl}/sessions?session_id=${sessionId}`, {
+    const response = await fetch(`${this.backendUrl}/sessions?session_id=${sessionId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ export class ApiClient {
       top_k?: number
     }
   ): Promise<ReadableStream> {
-    const response = await fetch(`${this.baseUrl}/chat`, {
+    const response = await fetch(`${this.backendUrl}/chat/stream`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
