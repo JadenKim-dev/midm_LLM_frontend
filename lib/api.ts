@@ -12,9 +12,11 @@ import {
 
 export class ApiClient {
   private baseUrl: string
+  private backendUrl: string
 
   constructor(baseUrl = '/api') {
     this.baseUrl = baseUrl
+    this.backendUrl = 'https://midm-chatbot-api.ap-northeast-2.arkain.site/api'
   }
 
   async createSession(metadata?: Record<string, any>): Promise<Session> {
@@ -85,7 +87,7 @@ export class ApiClient {
   }
 
   async checkHealth(): Promise<HealthStatus> {
-    const response = await fetch('https://midm-chatbot-api.ap-northeast-2.arkain.site/api/health', {
+    const response = await fetch(`${this.backendUrl}/health`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -104,7 +106,7 @@ export class ApiClient {
     formData.append('file', file)
     formData.append('session_id', sessionId)
 
-    const response = await fetch(`${this.baseUrl}/documents`, {
+    const response = await fetch(`${this.backendUrl}/documents/upload`, {
       method: 'POST',
       body: formData,
     })
@@ -117,7 +119,7 @@ export class ApiClient {
   }
 
   async getSessionDocuments(sessionId: string): Promise<DocumentListResponse> {
-    const response = await fetch(`${this.baseUrl}/documents?session_id=${sessionId}`, {
+    const response = await fetch(`${this.backendUrl}/documents?session_id=${sessionId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -132,7 +134,7 @@ export class ApiClient {
   }
 
   async deleteDocument(documentId: string): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/documents/${documentId}`, {
+    const response = await fetch(`${this.backendUrl}/documents/${documentId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -145,7 +147,7 @@ export class ApiClient {
   }
 
   async getDocumentChunks(documentId: string): Promise<DocumentChunksResponse> {
-    const response = await fetch(`${this.baseUrl}/documents/${documentId}/chunks`, {
+    const response = await fetch(`${this.backendUrl}/documents/${documentId}/chunks`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
