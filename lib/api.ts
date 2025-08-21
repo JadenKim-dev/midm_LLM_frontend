@@ -106,14 +106,18 @@ export class ApiClient {
   async *parseStreamResponse(stream: ReadableStream): AsyncGenerator<StreamChunk> {
     const reader = stream.getReader()
     const decoder = new TextDecoder()
+    let buffer = ''
 
     try {
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
 
-        const chunk = decoder.decode(value, { stream: true })
-        const lines = chunk.split('\n')
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split('\n')
+        
+        // 마지막 라인은 불완전할 수 있으므로 버퍼에 보관
+        buffer = lines.pop() || ''
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
@@ -127,12 +131,23 @@ export class ApiClient {
             try {
               const data = JSON.parse(dataStr)
               
-              if (data.type === 'content' && data.content) {
+              // 백엔드 스트리밍 응답 구조에 맞게 처리
+              if (data.type === 'start') {
+                // 스트리밍 시작 신호 - UI에서 로딩 표시 등에 사용 가능
+                continue
+              }
+              
+              if (data.type === 'token' && data.content) {
                 yield { type: 'content', content: data.content }
               }
               
-              if (data.type === 'context' && data.rag_context) {
-                yield { type: 'context', context_info: data.rag_context }
+              if (data.type === 'complete') {
+                // RAG 컨텍스트 정보가 있다면 전달
+                if (data.rag_context && data.rag_context.length > 0) {
+                  yield { type: 'context', context_info: data.rag_context }
+                }
+                yield { type: 'done', done: true }
+                return
               }
               
               if (data.type === 'error') {
@@ -144,6 +159,7 @@ export class ApiClient {
                 throw e
               }
               // JSON 파싱 에러 무시 (부분적인 데이터일 수 있음)
+              console.warn('Failed to parse stream chunk:', dataStr, e)
               continue
             }
           }

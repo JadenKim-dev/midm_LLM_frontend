@@ -108,6 +108,8 @@ export function useSession() {
 
       // Process streaming response
       for await (const chunk of apiClient.parseStreamResponse(stream)) {
+        console.log('useSession - Stream chunk received:', chunk) // 디버깅용 로그
+        
         if (chunk.type === 'content' && chunk.content) {
           assistantContent += chunk.content
           updateLastMessage(assistantContent, currentContexts)
@@ -115,6 +117,7 @@ export function useSession() {
           currentContexts = chunk.context_info
           updateLastMessage(assistantContent, currentContexts)
         } else if (chunk.type === 'done') {
+          console.log('useSession - Stream completed') // 디버깅용 로그
           break
         }
       }

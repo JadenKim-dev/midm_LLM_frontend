@@ -82,6 +82,8 @@ export function MessageInput({
         let currentContexts: RAGContext[] = []
 
         for await (const chunk of apiClient.parseStreamResponse(stream)) {
+          console.log('Stream chunk received:', chunk) // 디버깅용 로그
+          
           if (chunk.type === 'content' && chunk.content) {
             assistantContent += chunk.content
             onStreamUpdate?.(assistantContent, currentContexts)
@@ -90,6 +92,7 @@ export function MessageInput({
             setRagContexts(currentContexts)
             onStreamUpdate?.(assistantContent, currentContexts)
           } else if (chunk.type === 'done') {
+            console.log('Stream completed') // 디버깅용 로그
             break
           }
         }
