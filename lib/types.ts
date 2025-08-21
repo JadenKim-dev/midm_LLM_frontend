@@ -78,3 +78,5 @@ export interface ChatRequest {
   do_sample?: boolean
   use_rag?: boolean
 }
+
+export type TabType = 'chat' | 'documents'
