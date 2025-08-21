@@ -13,6 +13,7 @@ interface DocumentUploadProps {
   sessionId: string
   onUploadSuccess?: (response: DocumentUploadResponse) => void
   onUploadError?: (error: string) => void
+  onFileUpload?: (file: File) => Promise<DocumentUploadResponse | null>
   className?: string
   disabled?: boolean
 }
@@ -28,7 +29,8 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 export function DocumentUpload({ 
   sessionId, 
   onUploadSuccess, 
-  onUploadError, 
+  onUploadError,
+  onFileUpload,
   className = '',
   disabled = false
 }: DocumentUploadProps) {
@@ -62,14 +64,19 @@ export function DocumentUpload({
         setUploadProgress(prev => Math.min(prev + 10, 90))
       }, 200)
 
-      const response = await apiClient.uploadDocument(file, sessionId)
+      // onFileUpload prop이 있으면 사용, 없으면 기본 API 호출
+      const response = onFileUpload 
+        ? await onFileUpload(file)
+        : await apiClient.uploadDocument(file, sessionId)
       
       clearInterval(progressInterval)
       setUploadProgress(100)
       
-      const successMsg = `${file.name}이 성공적으로 업로드되었습니다. (${response.chunks_count}개 청크)`
-      setSuccess(successMsg)
-      onUploadSuccess?.(response)
+      if (response) {
+        const successMsg = `${file.name}이 성공적으로 업로드되었습니다. (${response.chunks_count}개 청크)`
+        setSuccess(successMsg)
+        onUploadSuccess?.(response)
+      }
       
       // 3초 후 성공 메시지 제거
       setTimeout(() => setSuccess(null), 3000)

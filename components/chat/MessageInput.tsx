@@ -14,6 +14,7 @@ interface MessageInputProps {
   sessionId?: string
   onMessageSent?: (message: Message) => void
   onStreamUpdate?: (content: string, contexts?: RAGContext[]) => void
+  onSendMessage?: (message: string, options?: { useRAG?: boolean; topK?: number }) => Promise<void>
   className?: string
   disabled?: boolean
 }
@@ -22,6 +23,7 @@ export function MessageInput({
   sessionId,
   onMessageSent,
   onStreamUpdate,
+  onSendMessage,
   className,
   disabled = false,
 }: MessageInputProps) {
@@ -43,54 +45,58 @@ export function MessageInput({
     setIsLoading(true)
 
     try {
-      // Add user message immediately
-      const userMessageObj: Message = {
-        message_id: generateId(),
-        session_id: sessionId,
-        role: 'user',
-        content: userMessage,
-        created_at: new Date().toISOString(),
-      }
-      
-      onMessageSent?.(userMessageObj)
-
-      // Create assistant message placeholder
-      const assistantMessageObj: Message = {
-        message_id: generateId(),
-        session_id: sessionId,
-        role: 'assistant',
-        content: '',
-        created_at: new Date().toISOString(),
-      }
-      
-      onMessageSent?.(assistantMessageObj)
-
-      // Send message and handle streaming response
-      const stream = await apiClient.sendMessage(sessionId, userMessage, {
-        use_rag: useRAG,
-        top_k: 5
-      })
-
-      let assistantContent = ''
-      let currentContexts: RAGContext[] = []
-
-      // Use the parseStreamResponse helper from apiClient
-      for await (const chunk of apiClient.parseStreamResponse(stream)) {
-        if (chunk.type === 'content' && chunk.content) {
-          assistantContent += chunk.content
-          onStreamUpdate?.(assistantContent, currentContexts)
-        } else if (chunk.type === 'context' && chunk.context_info) {
-          currentContexts = chunk.context_info
-          setRagContexts(currentContexts)
-          onStreamUpdate?.(assistantContent, currentContexts)
-        } else if (chunk.type === 'done') {
-          break
+      // onSendMessage prop이 있으면 훅의 sendMessage 사용 (권장)
+      if (onSendMessage) {
+        await onSendMessage(userMessage, {
+          useRAG: useRAG,
+          topK: 5
+        })
+      } else {
+        // 기존 방식 (하위 호환성)
+        const userMessageObj: Message = {
+          message_id: generateId(),
+          session_id: sessionId,
+          role: 'user',
+          content: userMessage,
+          created_at: new Date().toISOString(),
         }
-      }
+        
+        onMessageSent?.(userMessageObj)
 
-      // Update the final assistant message with contexts
-      if (currentContexts.length > 0) {
-        assistantMessageObj.rag_context = currentContexts
+        const assistantMessageObj: Message = {
+          message_id: generateId(),
+          session_id: sessionId,
+          role: 'assistant',
+          content: '',
+          created_at: new Date().toISOString(),
+        }
+        
+        onMessageSent?.(assistantMessageObj)
+
+        const stream = await apiClient.sendMessage(sessionId, userMessage, {
+          use_rag: useRAG,
+          top_k: 5
+        })
+
+        let assistantContent = ''
+        let currentContexts: RAGContext[] = []
+
+        for await (const chunk of apiClient.parseStreamResponse(stream)) {
+          if (chunk.type === 'content' && chunk.content) {
+            assistantContent += chunk.content
+            onStreamUpdate?.(assistantContent, currentContexts)
+          } else if (chunk.type === 'context' && chunk.context_info) {
+            currentContexts = chunk.context_info
+            setRagContexts(currentContexts)
+            onStreamUpdate?.(assistantContent, currentContexts)
+          } else if (chunk.type === 'done') {
+            break
+          }
+        }
+
+        if (currentContexts.length > 0) {
+          assistantMessageObj.rag_context = currentContexts
+        }
       }
 
     } catch (err) {

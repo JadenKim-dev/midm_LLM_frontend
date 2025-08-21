@@ -1,11 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { FileText, Info, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { apiClient } from '@/lib/api'
+import { useDocuments } from '@/hooks/useDocuments'
 
 interface RAGToggleProps {
   sessionId?: string
@@ -22,31 +21,10 @@ export function RAGToggle({
   disabled = false, 
   className = '' 
 }: RAGToggleProps) {
-  const [documentCount, setDocumentCount] = useState<number>(0)
-  const [isLoading, setIsLoading] = useState(false)
-
-  // 문서 개수 조회
-  useEffect(() => {
-    const loadDocumentCount = async () => {
-      if (!sessionId) {
-        setDocumentCount(0)
-        return
-      }
-
-      setIsLoading(true)
-      try {
-        const response = await apiClient.getSessionDocuments(sessionId)
-        setDocumentCount(response.total_count)
-      } catch (error) {
-        console.error('Failed to load document count:', error)
-        setDocumentCount(0)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadDocumentCount()
-  }, [sessionId])
+  const { documentCount, isLoading } = useDocuments({ 
+    sessionId, 
+    autoLoad: true 
+  })
 
   const handleToggle = () => {
     if (!disabled && documentCount > 0) {

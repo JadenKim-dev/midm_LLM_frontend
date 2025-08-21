@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback } from 'react'
 import { RefreshCw, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { DocumentUpload } from './DocumentUpload'
 import { DocumentList } from './DocumentList'
-import { Document, DocumentUploadResponse } from '@/lib/types'
-import { apiClient } from '@/lib/api'
+import { DocumentUploadResponse } from '@/lib/types'
+import { useDocuments } from '@/hooks/useDocuments'
 
 interface DocumentManagerProps {
   sessionId: string
@@ -15,71 +15,56 @@ interface DocumentManagerProps {
 }
 
 export function DocumentManager({ sessionId, className = '' }: DocumentManagerProps) {
-  const [documents, setDocuments] = useState<Document[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [refreshing, setRefreshing] = useState(false)
-
-  // 문서 목록 로드
-  const loadDocuments = useCallback(async (showRefreshing = false) => {
-    if (!sessionId) return
-
-    if (showRefreshing) {
-      setRefreshing(true)
-    } else {
-      setIsLoading(true)
-    }
-    
-    setError(null)
-
-    try {
-      const response = await apiClient.getSessionDocuments(sessionId)
-      setDocuments(response.documents)
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : '문서 목록을 불러올 수 없습니다.'
-      setError(errorMsg)
-      console.error('Failed to load documents:', err)
-    } finally {
-      setIsLoading(false)
-      setRefreshing(false)
-    }
-  }, [sessionId])
-
-  // 컴포넌트 마운트 시 문서 목록 로드
-  useEffect(() => {
-    loadDocuments()
-  }, [loadDocuments])
+  const {
+    documents,
+    documentCount,
+    isLoading,
+    isUploading,
+    error,
+    uploadDocument,
+    deleteDocument,
+    refreshDocuments,
+    hasDocuments,
+    isEmpty
+  } = useDocuments({ sessionId, autoLoad: true })
 
   // 업로드 성공 핸들러
   const handleUploadSuccess = useCallback((response: DocumentUploadResponse) => {
-    // 업로드된 문서를 목록에 추가 (실제로는 전체 목록을 다시 로드하는 것이 더 안전)
-    loadDocuments()
-  }, [loadDocuments])
+    // useDocuments 훅이 자동으로 문서 목록을 업데이트합니다
+    console.log('Document uploaded successfully:', response)
+  }, [])
 
-  // 업로드 에러 핸들러
+  // 업로드 에러 핸들러  
   const handleUploadError = useCallback((errorMsg: string) => {
-    setError(errorMsg)
+    console.error('Upload error:', errorMsg)
   }, [])
 
   // 문서 삭제 핸들러
-  const handleDocumentDeleted = useCallback((documentId: string) => {
-    setDocuments(prev => prev.filter(doc => doc.document_id !== documentId))
-  }, [])
+  const handleDocumentDeleted = useCallback(async (documentId: string) => {
+    try {
+      await deleteDocument(documentId)
+    } catch (err) {
+      console.error('Delete error:', err)
+    }
+  }, [deleteDocument])
 
   // 에러 핸들러
   const handleError = useCallback((errorMsg: string) => {
-    setError(errorMsg)
+    console.error('Document error:', errorMsg)
   }, [])
 
-  // 새로고침 핸들러
-  const handleRefresh = useCallback(() => {
-    loadDocuments(true)
-  }, [loadDocuments])
-
-  // 에러 닫기
-  const handleErrorClose = useCallback(() => {
-    setError(null)
-  }, [])
+  // 업로드 파일 핸들러
+  const handleFileUpload = useCallback(async (file: File) => {
+    try {
+      const response = await uploadDocument(file)
+      handleUploadSuccess(response!)
+      return response
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : '파일 업로드에 실패했습니다.'
+      handleUploadError(errorMsg)
+      throw err
+    }
+  }, [uploadDocument, handleUploadSuccess, handleUploadError])
 
   if (!sessionId) {
     return (
@@ -107,10 +92,10 @@ export function DocumentManager({ sessionId, className = '' }: DocumentManagerPr
         <Button
           variant="outline"
           size="sm"
-          onClick={handleRefresh}
-          disabled={refreshing || isLoading}
+          onClick={refreshDocuments}
+          disabled={isLoading || isUploading}
         >
-          <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
           새로고침
         </Button>
       </div>
@@ -119,16 +104,8 @@ export function DocumentManager({ sessionId, className = '' }: DocumentManagerPr
       {error && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="flex items-center justify-between">
-            <span>{error}</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleErrorClose}
-              className="h-auto p-1 ml-2"
-            >
-              ×
-            </Button>
+          <AlertDescription>
+            {error}
           </AlertDescription>
         </Alert>
       )}
@@ -140,7 +117,8 @@ export function DocumentManager({ sessionId, className = '' }: DocumentManagerPr
           sessionId={sessionId}
           onUploadSuccess={handleUploadSuccess}
           onUploadError={handleUploadError}
-          disabled={isLoading}
+          onFileUpload={handleFileUpload}
+          disabled={isLoading || isUploading}
         />
       </div>
 
@@ -148,9 +126,9 @@ export function DocumentManager({ sessionId, className = '' }: DocumentManagerPr
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium">업로드된 문서</h3>
-          {documents.length > 0 && (
+          {hasDocuments && (
             <span className="text-sm text-gray-500">
-              총 {documents.length}개
+              총 {documentCount}개
             </span>
           )}
         </div>
@@ -164,7 +142,7 @@ export function DocumentManager({ sessionId, className = '' }: DocumentManagerPr
       </div>
 
       {/* 도움말 섹션 */}
-      {documents.length === 0 && !isLoading && (
+      {isEmpty && (
         <div className="bg-blue-50 rounded-lg p-4">
           <h4 className="font-medium text-blue-900 mb-2">💡 도움말</h4>
           <ul className="text-sm text-blue-800 space-y-1">

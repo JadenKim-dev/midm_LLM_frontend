@@ -19,6 +19,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
     createNewSession,
     addMessage,
     updateLastMessage,
+    sendMessage,
   } = useSession()
 
   if (error) {
@@ -54,6 +55,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
           sessionId={session?.session_id}
           onMessageSent={addMessage}
           onStreamUpdate={updateLastMessage}
+          onSendMessage={sendMessage}
           className="mt-4"
           disabled={!session || isLoading}
         />
