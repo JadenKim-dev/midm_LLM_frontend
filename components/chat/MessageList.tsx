@@ -5,7 +5,8 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Message } from '@/lib/api'
+import { Message } from '@/lib/types'
+import { ContextInfo } from './ContextInfo'
 import { formatTimestamp } from '@/lib/utils'
 
 interface MessageListProps {
@@ -54,6 +55,13 @@ export function MessageList({ messages, isLoading, className }: MessageListProps
               </div>
             </CardContent>
           </Card>
+          
+          {/* RAG Context Info for Assistant messages */}
+          {isAssistant && message.rag_context && message.rag_context.length > 0 && (
+            <div className="mt-2 w-full max-w-lg">
+              <ContextInfo contexts={message.rag_context} />
+            </div>
+          )}
           
           {/* Timestamp */}
           <div className="text-xs text-muted-foreground mt-1 px-1">

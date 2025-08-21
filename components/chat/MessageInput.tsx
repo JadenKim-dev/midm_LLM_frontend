@@ -5,13 +5,15 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { apiClient, Message } from '@/lib/api'
+import { RAGToggle } from './RAGToggle'
+import { apiClient } from '@/lib/api'
+import { Message, RAGContext } from '@/lib/types'
 import { generateId } from '@/lib/utils'
 
 interface MessageInputProps {
   sessionId?: string
   onMessageSent?: (message: Message) => void
-  onStreamUpdate?: (content: string) => void
+  onStreamUpdate?: (content: string, contexts?: RAGContext[]) => void
   className?: string
   disabled?: boolean
 }
@@ -26,6 +28,8 @@ export function MessageInput({
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [useRAG, setUseRAG] = useState(false)
+  const [ragContexts, setRagContexts] = useState<RAGContext[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -62,46 +66,31 @@ export function MessageInput({
       onMessageSent?.(assistantMessageObj)
 
       // Send message and handle streaming response
-      const stream = await apiClient.sendMessage(sessionId, userMessage)
-      const reader = stream.getReader()
-      const decoder = new TextDecoder()
+      const stream = await apiClient.sendMessage(sessionId, userMessage, {
+        use_rag: useRAG,
+        top_k: 5
+      })
 
       let assistantContent = ''
+      let currentContexts: RAGContext[] = []
 
-      while (true) {
-        const { done, value } = await reader.read()
-        
-        if (done) break
-
-        const chunk = decoder.decode(value, { stream: true })
-        const lines = chunk.split('\n')
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6).trim()
-            
-            if (data === '[DONE]') {
-              break
-            }
-
-            try {
-              const parsed = JSON.parse(data)
-              
-              if (parsed.type === 'token' && parsed.content) {
-                assistantContent += parsed.content
-                onStreamUpdate?.(assistantContent)
-              } else if (parsed.type === 'complete') {
-                // Stream completed
-                break
-              } else if (parsed.type === 'error') {
-                throw new Error(parsed.message || 'Stream error occurred')
-              }
-            } catch (parseError) {
-              // Skip invalid JSON lines
-              continue
-            }
-          }
+      // Use the parseStreamResponse helper from apiClient
+      for await (const chunk of apiClient.parseStreamResponse(stream)) {
+        if (chunk.type === 'content' && chunk.content) {
+          assistantContent += chunk.content
+          onStreamUpdate?.(assistantContent, currentContexts)
+        } else if (chunk.type === 'context' && chunk.context_info) {
+          currentContexts = chunk.context_info
+          setRagContexts(currentContexts)
+          onStreamUpdate?.(assistantContent, currentContexts)
+        } else if (chunk.type === 'done') {
+          break
         }
+      }
+
+      // Update the final assistant message with contexts
+      if (currentContexts.length > 0) {
+        assistantMessageObj.rag_context = currentContexts
       }
 
     } catch (err) {
@@ -121,6 +110,13 @@ export function MessageInput({
     }
   }
 
+  const getPlaceholderText = () => {
+    if (disabled) return "Please wait..."
+    if (isLoading) return "AI is thinking..."
+    if (useRAG) return "Ask anything about your documents..."
+    return "Type your message..."
+  }
+
   return (
     <div className={className}>
       {error && (
@@ -128,8 +124,20 @@ export function MessageInput({
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
+
+      {/* RAG Toggle */}
+      {sessionId && (
+        <div className="mb-4">
+          <RAGToggle
+            sessionId={sessionId}
+            useRAG={useRAG}
+            onToggle={setUseRAG}
+            disabled={disabled || isLoading}
+          />
+        </div>
+      )}
       
-      <Card>
+      <Card className={useRAG ? 'ring-1 ring-blue-200 bg-blue-50/30' : ''}>
         <CardContent className="p-4">
           <form onSubmit={handleSubmit} className="flex gap-2">
             <Input
@@ -137,9 +145,9 @@ export function MessageInput({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={disabled ? "Please wait..." : "Type your message..."}
+              placeholder={getPlaceholderText()}
               disabled={disabled || isLoading}
-              className="flex-1"
+              className={`flex-1 ${useRAG ? 'border-blue-200 focus:border-blue-400' : ''}`}
               autoFocus
             />
             
@@ -147,13 +155,21 @@ export function MessageInput({
               type="submit"
               disabled={disabled || isLoading || !input.trim()}
               size="icon"
+              className={useRAG ? 'bg-blue-600 hover:bg-blue-700' : ''}
             >
-              {isLoading ? '⏳' : '📤'}
+              {isLoading ? '⏳' : useRAG ? '🔍' : '📤'}
             </Button>
           </form>
           
           <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
-            <span>Press Enter to send, Shift+Enter for new line</span>
+            <div className="flex items-center space-x-4">
+              <span>Enter to send, Shift+Enter for new line</span>
+              {useRAG && (
+                <span className="text-blue-600 font-medium">
+                  🔍 RAG Mode Active
+                </span>
+              )}
+            </div>
             {sessionId && (
               <span className="font-mono">Session: {sessionId.slice(-8)}</span>
             )}
