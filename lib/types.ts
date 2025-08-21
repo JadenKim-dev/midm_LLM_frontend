@@ -12,7 +12,7 @@ export interface Message {
   content: string
   created_at: string
   token_usage?: Record<string, any>
-  context_info?: RAGContext[]
+  rag_context?: RAGContext[]
 }
 
 export interface ChatResponse {
@@ -68,6 +68,8 @@ export interface RAGContext {
   document_title: string
   chunk_content: string
   similarity_score: number
+  chunk_id?: string
+  chunk_index?: number
 }
 
 export interface ChatRequest {
@@ -77,6 +79,34 @@ export interface ChatRequest {
   temperature?: number
   do_sample?: boolean
   use_rag?: boolean
+  top_k?: number
 }
 
+// RAG 응답 관련 타입들
+export interface RAGResponse {
+  response: string
+  context_used: RAGContext[]
+  total_contexts: number
+}
+
+export interface StreamChunk {
+  type: 'content' | 'context' | 'done'
+  content?: string
+  context_info?: RAGContext[]
+  done?: boolean
+}
+
+// 확장된 Message 타입 (RAG 컨텍스트 정보 포함)
+export interface ExtendedMessage extends Message {
+  rag_contexts?: RAGContext[]
+  is_rag_response?: boolean
+}
+
+// UI 관련 타입들
 export type TabType = 'chat' | 'documents'
+
+export interface ChatUIOptions {
+  useRAG: boolean
+  maxTokens: number
+  temperature: number
+}
