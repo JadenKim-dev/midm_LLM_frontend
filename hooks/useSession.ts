@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { apiClient } from '@/lib/api'
 import { Session, Message, RAGContext } from '@/lib/types'
+import { SessionStorage } from '@/lib/sessionStorage'
 
 export function useSession() {
   const [session, setSession] = useState<Session | null>(null)
@@ -18,6 +19,9 @@ export function useSession() {
       const newSession = await apiClient.createSession()
       setSession(newSession)
       setMessages([])
+      
+      // 새 세션을 localStorage에 저장
+      SessionStorage.saveSession(newSession.session_id)
       
       return newSession
     } catch (err) {
@@ -129,10 +133,41 @@ export function useSession() {
     }
   }, [session, addMessage, updateLastMessage])
 
+  const initializeSession = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      // 먼저 localStorage에서 기존 세션 확인
+      const savedSessionId = SessionStorage.getSession()
+      
+      if (savedSessionId) {
+        // 기존 세션이 있으면 해당 세션으로 설정
+        const sessionData: Session = {
+          session_id: savedSessionId,
+          created_at: new Date().toISOString(),
+          metadata: {}
+        }
+        setSession(sessionData)
+        console.log('Restored session from localStorage:', savedSessionId)
+      } else {
+        // 기존 세션이 없거나 만료된 경우 새 세션 생성
+        console.log('No valid session found, creating new session')
+        await createNewSession()
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to initialize session'
+      setError(errorMessage)
+      console.error('Error initializing session:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [createNewSession])
+
   // Initialize session on mount
   useEffect(() => {
-    createNewSession()
-  }, [createNewSession])
+    initializeSession()
+  }, [initializeSession])
 
   // Load messages when session changes
   useEffect(() => {
@@ -140,6 +175,16 @@ export function useSession() {
       loadMessages(session.session_id)
     }
   }, [session?.session_id, loadMessages])
+
+  const clearSession = useCallback(() => {
+    setSession(null)
+    setMessages([])
+    SessionStorage.clearSession()
+  }, [])
+
+  const extendSession = useCallback(() => {
+    return SessionStorage.extendSession()
+  }, [])
 
   return {
     session,
@@ -151,5 +196,8 @@ export function useSession() {
     addMessage,
     updateLastMessage,
     sendMessage,
+    clearSession,
+    extendSession,
+    initializeSession,
   }
 }

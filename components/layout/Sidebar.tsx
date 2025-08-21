@@ -13,13 +13,15 @@ interface SidebarProps {
   activeTab?: TabType
   onTabChange?: (tab: TabType) => void
   onNewChat?: () => void
+  onClearSession?: () => void
 }
 
 export function Sidebar({ 
   className, 
   activeTab = 'chat', 
   onTabChange,
-  onNewChat 
+  onNewChat,
+  onClearSession
 }: SidebarProps) {
   const [sessions] = useState([
     { id: '1', title: 'General Chat', lastMessage: 'Hello there!', timestamp: '10:30 AM' },
@@ -67,7 +69,7 @@ export function Sidebar({
           {activeTab === 'chat' ? (
             <>
               {/* New Chat Button */}
-              <div className="p-4 border-b">
+              <div className="p-4 border-b space-y-2">
                 <Button 
                   className="w-full" 
                   size="sm"
@@ -76,6 +78,16 @@ export function Sidebar({
                   <Plus className="h-4 w-4 mr-2" />
                   새 채팅
                 </Button>
+                {onClearSession && (
+                  <Button 
+                    variant="outline"
+                    className="w-full" 
+                    size="sm"
+                    onClick={onClearSession}
+                  >
+                    세션 초기화
+                  </Button>
+                )}
               </div>
 
               {/* Session List */}

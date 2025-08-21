@@ -9,6 +9,7 @@ import { RAGToggle } from './RAGToggle'
 import { apiClient } from '@/lib/api'
 import { Message, RAGContext } from '@/lib/types'
 import { generateId } from '@/lib/utils'
+import { SessionStorage } from '@/lib/sessionStorage'
 
 interface MessageInputProps {
   sessionId?: string
@@ -45,6 +46,9 @@ export function MessageInput({
     setIsLoading(true)
 
     try {
+      // 세션 활동 시 세션 연장
+      SessionStorage.extendSession()
+      
       // onSendMessage prop이 있으면 훅의 sendMessage 사용 (권장)
       if (onSendMessage) {
         await onSendMessage(userMessage, {
