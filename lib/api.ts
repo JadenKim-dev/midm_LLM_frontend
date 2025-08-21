@@ -34,7 +34,7 @@ export class ApiClient {
   }
 
   async getMessages(sessionId: string): Promise<ChatResponse> {
-    const response = await fetch(`${this.backendUrl}/sessions?session_id=${sessionId}`, {
+    const response = await fetch(`${this.backendUrl}/sessions/${sessionId}/messages`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
