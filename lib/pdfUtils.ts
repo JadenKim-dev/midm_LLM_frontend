@@ -63,9 +63,7 @@ function splitMarpContent(marpContent: string): string[] {
   
   // 첫 번째 부분이 Marp 헤더라면 제거
   let slides = parts
-  if (parts[0] && parts[0].includes('marp: true')) {
-    slides = parts.slice(1)
-  }
+  slides = parts.slice(2)
   
   return slides.filter(slide => slide.trim().length > 0)
 }
