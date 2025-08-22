@@ -162,7 +162,10 @@ export default function PresentationPreview({ analysis, sessionId, onConversionC
                       code: ({node, ...props}) => <code className="bg-gray-200 px-1 rounded text-xs font-mono" {...props} />,
                     }}
                   >
-                    {analysis.content.substring(0, 300)}...
+                    {analysis.content && analysis.content.trim().length > 0 
+                      ? `${analysis.content.substring(0, 300)}...`
+                      : '분석 내용이 없습니다.'
+                    }
                   </ReactMarkdown>
                 </div>
               </div>

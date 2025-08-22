@@ -167,7 +167,10 @@ export default function PresentationList({ sessionId, onPresentationSelect, refr
                         code: ({node, ...props}) => <code className="bg-gray-200 px-1 rounded text-xs font-mono" {...props} />,
                       }}
                     >
-                      {truncateContent(presentation.content)}
+                      {presentation.content && presentation.content.trim().length > 0 
+                        ? truncateContent(presentation.content)
+                        : '내용이 없습니다.'
+                      }
                     </ReactMarkdown>
                   </div>
                 </div>

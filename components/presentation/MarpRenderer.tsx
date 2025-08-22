@@ -17,6 +17,13 @@ export default function MarpRenderer({ markdown, theme = 'default', className = 
   useEffect(() => {
     const renderMarp = async () => {
       try {
+        // 빈 마크다운 처리
+        if (!markdown || markdown.trim().length === 0) {
+          setHtmlContent('<div class="text-gray-500 italic p-8 text-center">콘텐츠가 없습니다.</div>')
+          setCss('')
+          return
+        }
+
         const marp = new Marp({
           theme: theme,
           html: true,
@@ -166,7 +173,7 @@ export default function MarpRenderer({ markdown, theme = 'default', className = 
     <div 
       ref={containerRef}
       className={`marp-renderer ${className}`}
-      dangerouslySetInnerHTML={{ __html: htmlContent }}
+      dangerouslySetInnerHTML={{ __html: htmlContent || '<div class="text-gray-500 italic p-8 text-center">콘텐츠를 로드하는 중...</div>' }}
     />
   )
 }
