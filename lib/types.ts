@@ -154,6 +154,8 @@ export interface StreamingChunk {
   message?: string
   step?: string
   content?: string
+  accumulated_content?: string  // 누적된 분석 내용
+  accumulated_marp?: string     // 누적된 Marp 내용
   analysis_id?: string
   presentation_id?: string
   topic?: string

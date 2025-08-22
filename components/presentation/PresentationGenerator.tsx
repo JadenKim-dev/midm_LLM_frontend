@@ -90,7 +90,10 @@ export default function PresentationGenerator({ sessionId, onAnalysisComplete }:
         break
         
       case 'content_chunk':
-        if (chunk.content) {
+        // 백엔드에서 보내는 accumulated_content를 사용해서 토큰 누락 방지
+        if (chunk.accumulated_content) {
+          setAnalysisContent(chunk.accumulated_content)
+        } else if (chunk.content) {
           setAnalysisContent(prev => prev + chunk.content)
         }
         break

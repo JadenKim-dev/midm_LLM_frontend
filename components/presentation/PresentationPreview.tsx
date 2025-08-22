@@ -93,7 +93,10 @@ export default function PresentationPreview({ analysis, sessionId, onConversionC
         break
         
       case 'marp_chunk':
-        if (chunk.content) {
+        // 백엔드에서 보내는 accumulated_marp를 사용해서 토큰 누락 방지
+        if (chunk.accumulated_marp) {
+          setMarpContent(chunk.accumulated_marp)
+        } else if (chunk.content) {
           setMarpContent(prev => prev + chunk.content)
         }
         break
