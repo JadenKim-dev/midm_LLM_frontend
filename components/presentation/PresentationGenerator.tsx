@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { Skeleton } from '../ui/skeleton'
 import { AnalysisRequest, StreamingChunk, Analysis } from '@/lib/types'
+import { apiClient } from '@/lib/api'
 
 interface PresentationGeneratorProps {
   sessionId: string
@@ -33,23 +34,15 @@ export default function PresentationGenerator({ sessionId, onAnalysisComplete }:
     setCompletedAnalysis(null)
 
     try {
-      const response = await fetch('/api/presentation/analyze', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          session_id: sessionId,
-          topic: topic.trim()
-        } as AnalysisRequest),
-      })
-
-      if (!response.ok) {
-        throw new Error('분석 요청 실패')
+      const request: AnalysisRequest = {
+        session_id: sessionId,
+        topic: topic.trim()
       }
 
+      const stream = await apiClient.analyzeTopicStream(request)
+      
       // SSE 스트림 처리
-      const reader = response.body?.getReader()
+      const reader = stream.getReader()
       const decoder = new TextDecoder()
 
       if (!reader) {

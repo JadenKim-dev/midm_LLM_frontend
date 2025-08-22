@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { Skeleton } from '../ui/skeleton'
 import { Presentation, PresentationListResponse } from '@/lib/types'
+import { apiClient } from '@/lib/api'
 
 interface PresentationListProps {
   sessionId: string
@@ -25,13 +26,7 @@ export default function PresentationList({ sessionId, onPresentationSelect, refr
     setError(null)
 
     try {
-      const response = await fetch(`/api/presentation/list/${sessionId}`)
-      
-      if (!response.ok) {
-        throw new Error('발표자료 목록을 가져올 수 없습니다')
-      }
-
-      const data: PresentationListResponse = await response.json()
+      const data = await apiClient.getPresentationList(sessionId)
       setPresentations(data.presentations)
     } catch (error) {
       console.error('발표자료 목록 조회 오류:', error)

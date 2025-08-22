@@ -6,6 +6,9 @@ import {
   DocumentListResponse,
   DocumentChunksResponse,
   StreamChunk,
+  AnalysisRequest,
+  ConversionRequest,
+  PresentationListResponse,
 } from './types'
 
 export class ApiClient {
@@ -240,6 +243,62 @@ export class ApiClient {
 
     if (!response.ok) {
       throw new Error(`Failed to get document chunks: ${response.status}`)
+    }
+
+    return response.json()
+  }
+
+  // 발표자료 관련 메서드들
+  async analyzeTopicStream(request: AnalysisRequest): Promise<ReadableStream> {
+    const response = await fetch(`${this.backendUrl}/presentations/analyze`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to analyze topic: ${response.status}`)
+    }
+
+    if (!response.body) {
+      throw new Error('No response body received')
+    }
+
+    return response.body
+  }
+
+  async convertToPresentationStream(request: ConversionRequest): Promise<ReadableStream> {
+    const response = await fetch(`${this.backendUrl}/presentations/convert`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to convert to presentation: ${response.status}`)
+    }
+
+    if (!response.body) {
+      throw new Error('No response body received')
+    }
+
+    return response.body
+  }
+
+  async getPresentationList(sessionId: string): Promise<PresentationListResponse> {
+    const response = await fetch(`${this.backendUrl}/presentations/list/${sessionId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to get presentation list: ${response.status}`)
     }
 
     return response.json()

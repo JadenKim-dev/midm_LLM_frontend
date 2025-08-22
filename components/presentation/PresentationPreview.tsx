@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { Skeleton } from '../ui/skeleton'
 import { ConversionRequest, StreamingChunk, Presentation, Analysis } from '@/lib/types'
+import { apiClient } from '@/lib/api'
 
 interface PresentationPreviewProps {
   analysis: Analysis
@@ -35,23 +36,15 @@ export default function PresentationPreview({ analysis, sessionId, onConversionC
     setCompletedPresentation(null)
 
     try {
-      const response = await fetch('/api/presentation/convert', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          analysis_id: analysis.analysis_id,
-          theme: selectedTheme
-        } as ConversionRequest),
-      })
-
-      if (!response.ok) {
-        throw new Error('변환 요청 실패')
+      const request: ConversionRequest = {
+        analysis_id: analysis.analysis_id,
+        theme: selectedTheme
       }
 
+      const stream = await apiClient.convertToPresentationStream(request)
+      
       // SSE 스트림 처리
-      const reader = response.body?.getReader()
+      const reader = stream.getReader()
       const decoder = new TextDecoder()
 
       if (!reader) {
