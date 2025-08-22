@@ -8,6 +8,8 @@ import { Skeleton } from '../ui/skeleton'
 import { ConversionRequest, StreamingChunk, Presentation, Analysis } from '@/lib/types'
 import { apiClient } from '@/lib/api'
 import MarpRenderer from './MarpRenderer'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 interface PresentationPreviewProps {
   analysis: Analysis
@@ -145,7 +147,24 @@ export default function PresentationPreview({ analysis, sessionId, onConversionC
             <div>
               <h3 className="font-medium mb-2">주제: {analysis.topic}</h3>
               <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded max-h-32 overflow-y-auto">
-                {analysis.content.substring(0, 200)}...
+                <div className="prose prose-sm max-w-none">
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      p: ({node, ...props}) => <p className="mb-2 text-xs leading-relaxed" {...props} />,
+                      h1: ({node, ...props}) => <h1 className="text-sm font-bold mb-1" {...props} />,
+                      h2: ({node, ...props}) => <h2 className="text-sm font-semibold mb-1" {...props} />,
+                      h3: ({node, ...props}) => <h3 className="text-xs font-medium mb-1" {...props} />,
+                      ul: ({node, ...props}) => <ul className="mb-2 pl-3 space-y-0.5" {...props} />,
+                      ol: ({node, ...props}) => <ol className="mb-2 pl-3 space-y-0.5" {...props} />,
+                      li: ({node, ...props}) => <li className="text-xs" {...props} />,
+                      strong: ({node, ...props}) => <strong className="font-semibold" {...props} />,
+                      code: ({node, ...props}) => <code className="bg-gray-200 px-1 rounded text-xs font-mono" {...props} />,
+                    }}
+                  >
+                    {analysis.content.substring(0, 300)}...
+                  </ReactMarkdown>
+                </div>
               </div>
             </div>
             

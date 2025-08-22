@@ -8,6 +8,8 @@ import { Badge } from '../ui/badge'
 import { Skeleton } from '../ui/skeleton'
 import { AnalysisRequest, StreamingChunk, Analysis } from '@/lib/types'
 import { apiClient } from '@/lib/api'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 interface PresentationGeneratorProps {
   sessionId: string
@@ -175,8 +177,32 @@ export default function PresentationGenerator({ sessionId, onAnalysisComplete }:
                 <Skeleton className="h-4 w-3/5" />
               </div>
             ) : (
-              <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                {analysisContent}
+              <div className="prose prose-sm max-w-none">
+                <ReactMarkdown 
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    // 커스텀 컴포넌트로 스타일링 개선
+                    h1: ({node, ...props}) => <h1 className="text-xl font-bold mb-3 text-gray-900" {...props} />,
+                    h2: ({node, ...props}) => <h2 className="text-lg font-semibold mb-2 text-gray-800" {...props} />,
+                    h3: ({node, ...props}) => <h3 className="text-base font-medium mb-2 text-gray-700" {...props} />,
+                    p: ({node, ...props}) => <p className="mb-3 text-gray-600 leading-relaxed" {...props} />,
+                    ul: ({node, ...props}) => <ul className="mb-3 pl-4 space-y-1" {...props} />,
+                    ol: ({node, ...props}) => <ol className="mb-3 pl-4 space-y-1" {...props} />,
+                    li: ({node, ...props}) => <li className="text-gray-600" {...props} />,
+                    strong: ({node, ...props}) => <strong className="font-semibold text-gray-800" {...props} />,
+                    em: ({node, ...props}) => <em className="italic text-gray-700" {...props} />,
+                    code: ({node, ...props}) => <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono" {...props} />,
+                    blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-blue-200 pl-4 italic text-gray-600 my-3" {...props} />,
+                    table: ({node, ...props}) => <table className="min-w-full border border-gray-200 rounded-lg my-3" {...props} />,
+                    thead: ({node, ...props}) => <thead className="bg-gray-50" {...props} />,
+                    th: ({node, ...props}) => <th className="px-3 py-2 text-left text-sm font-medium text-gray-700 border border-gray-200" {...props} />,
+                    td: ({node, ...props}) => <td className="px-3 py-2 text-sm text-gray-600 border border-gray-200" {...props} />,
+                    a: ({node, ...props}) => <a className="text-blue-600 hover:text-blue-800 underline" {...props} />,
+                    hr: ({node, ...props}) => <hr className="my-4 border-gray-300" {...props} />,
+                  }}
+                >
+                  {analysisContent}
+                </ReactMarkdown>
                 {isAnalyzing && (
                   <span className="inline-block w-2 h-5 bg-blue-500 animate-pulse ml-1" />
                 )}

@@ -7,6 +7,8 @@ import { Badge } from '../ui/badge'
 import { Skeleton } from '../ui/skeleton'
 import { Presentation, PresentationListResponse } from '@/lib/types'
 import { apiClient } from '@/lib/api'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 interface PresentationListProps {
   sessionId: string
@@ -149,9 +151,26 @@ export default function PresentationList({ sessionId, onPresentationSelect, refr
                   주제: {presentation.topic}
                 </p>
                 
-                <p className="text-sm text-gray-500 mb-3">
-                  {truncateContent(presentation.content)}
-                </p>
+                <div className="text-sm text-gray-500 mb-3 max-h-16 overflow-hidden">
+                  <div className="prose prose-sm max-w-none">
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        p: ({node, ...props}) => <p className="mb-1 text-xs leading-relaxed" {...props} />,
+                        h1: ({node, ...props}) => <span className="text-xs font-bold" {...props} />,
+                        h2: ({node, ...props}) => <span className="text-xs font-semibold" {...props} />,
+                        h3: ({node, ...props}) => <span className="text-xs font-medium" {...props} />,
+                        ul: ({node, ...props}) => <span className="text-xs" {...props} />,
+                        ol: ({node, ...props}) => <span className="text-xs" {...props} />,
+                        li: ({node, ...props}) => <span className="text-xs" {...props} />,
+                        strong: ({node, ...props}) => <strong className="font-semibold text-xs" {...props} />,
+                        code: ({node, ...props}) => <code className="bg-gray-200 px-1 rounded text-xs font-mono" {...props} />,
+                      }}
+                    >
+                      {truncateContent(presentation.content)}
+                    </ReactMarkdown>
+                  </div>
+                </div>
                 
                 <div className="flex items-center justify-between text-xs text-gray-400">
                   <span>생성일: {formatDate(presentation.created_at)}</span>
