@@ -9,6 +9,7 @@ import { Presentation, PresentationListResponse } from '@/lib/types'
 import { apiClient } from '@/lib/api'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { downloadPresentationAsPDF } from '@/lib/pdfUtils'
 
 interface PresentationListProps {
   sessionId: string
@@ -52,16 +53,13 @@ export default function PresentationList({ sessionId, onPresentationSelect, refr
     })
   }
 
-  const downloadPresentation = (presentation: Presentation) => {
-    const blob = new Blob([presentation.marp_content], { type: 'text/markdown' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${presentation.title}.md`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+  const downloadAsPDF = async (presentation: Presentation) => {
+    try {
+      await downloadPresentationAsPDF(presentation)
+    } catch (error) {
+      console.error('PDF 다운로드 오류:', error)
+      alert('PDF 다운로드에 실패했습니다. 다시 시도해주세요.')
+    }
   }
 
   const truncateContent = (content: string, maxLength: number = 100) => {
@@ -139,10 +137,10 @@ export default function PresentationList({ sessionId, onPresentationSelect, refr
                       variant="ghost"
                       onClick={(e) => {
                         e.stopPropagation()
-                        downloadPresentation(presentation)
+                        downloadAsPDF(presentation)
                       }}
                     >
-                      다운로드
+                      PDF 다운로드
                     </Button>
                   </div>
                 </div>

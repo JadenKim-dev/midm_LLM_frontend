@@ -10,6 +10,7 @@ import { apiClient } from '@/lib/api'
 import MarpRenderer from './MarpRenderer'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { downloadPresentationAsPDF } from '@/lib/pdfUtils'
 
 interface PresentationPreviewProps {
   analysis: Analysis
@@ -122,18 +123,15 @@ export default function PresentationPreview({ analysis, sessionId, onConversionC
     }
   }
 
-  const downloadMarp = () => {
+  const downloadAsPDF = async () => {
     if (!completedPresentation) return
 
-    const blob = new Blob([completedPresentation.marp_content], { type: 'text/markdown' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${completedPresentation.title}.md`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    try {
+      await downloadPresentationAsPDF(completedPresentation)
+    } catch (error) {
+      console.error('PDF 다운로드 오류:', error)
+      alert('PDF 다운로드에 실패했습니다. 다시 시도해주세요.')
+    }
   }
 
   return (
@@ -266,9 +264,9 @@ export default function PresentationPreview({ analysis, sessionId, onConversionC
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={downloadMarp}
+                  onClick={downloadAsPDF}
                 >
-                  다운로드
+                  PDF 다운로드
                 </Button>
                 <Badge className="bg-green-100 text-green-800">완료</Badge>
               </div>

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { Presentation } from '@/lib/types'
 import MarpRenderer from './MarpRenderer'
+import { downloadPresentationAsPDF } from '@/lib/pdfUtils'
 
 interface MarpViewerProps {
   presentation: Presentation
@@ -74,16 +75,13 @@ backgroundColor: #fff
     }
   }
 
-  const downloadPresentation = () => {
-    const blob = new Blob([presentation.marp_content], { type: 'text/markdown' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${presentation.title}.md`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+  const downloadAsPDF = async () => {
+    try {
+      await downloadPresentationAsPDF(presentation)
+    } catch (error) {
+      console.error('PDF 다운로드 오류:', error)
+      alert('PDF 다운로드에 실패했습니다. 다시 시도해주세요.')
+    }
   }
 
   // 키보드 네비게이션
@@ -147,9 +145,9 @@ backgroundColor: #fff
             <Button
               variant="outline"
               size="sm"
-              onClick={downloadPresentation}
+              onClick={downloadAsPDF}
             >
-              다운로드
+              PDF 다운로드
             </Button>
             <Button
               variant="outline"
