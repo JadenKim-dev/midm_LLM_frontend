@@ -30,10 +30,10 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
       <Sidebar 
-        className="flex w-64 border-r bg-muted/50"
+        className="flex w-64 border-r bg-muted/50 min-h-screen sticky top-0"
         activeTab={activeTab}
         onTabChange={handleTabChange}
         onNewChat={handleNewChat}
