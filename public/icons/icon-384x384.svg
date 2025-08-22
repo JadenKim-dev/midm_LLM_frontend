@@ -1,0 +1,10 @@
+<svg width="384" height="384" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 384">
+  <defs>
+    <style>
+      .bg { fill: #1f2937; }
+      .robot { font-family: system-ui, -apple-system, sans-serif; font-size: 230.39999999999998px; }
+    </style>
+  </defs>
+  <rect class="bg" width="384" height="384" rx="38.400000000000006"/>
+  <text class="robot" x="50%" y="50%" text-anchor="middle" dy="0.35em" fill="white">🤖</text>
+</svg>

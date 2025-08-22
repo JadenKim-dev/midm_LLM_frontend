@@ -8,6 +8,9 @@ import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { SessionInfo } from '@/components/SessionInfo'
+import { InstallPrompt } from '@/components/pwa/InstallPrompt'
+import { IOSInstallPrompt } from '@/components/pwa/IOSInstallPrompt'
+import { OfflineIndicator } from '@/components/pwa/OfflineIndicator'
 import { useSession } from '@/hooks/useSession'
 import { useMobile } from '@/hooks/useMobile'
 import { TabType } from '@/lib/types'
@@ -41,7 +44,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen bg-background">
+    <div className="relative flex min-h-screen bg-background overflow-x-hidden">
       {/* Mobile Overlay */}
       {isMobile && isSidebarOpen && (
         <div 
@@ -70,7 +73,7 @@ export default function ChatPage() {
       />
       
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
         {/* Header */}
         <Header 
           onMenuClick={toggleSidebar}
@@ -78,17 +81,17 @@ export default function ChatPage() {
         />
         
         {/* Dynamic Content based on active tab */}
-        <div className="flex-1">
+        <div className="flex-1 overflow-x-hidden">
           {activeTab === 'chat' ? (
             <div className="h-full flex flex-col">
-              <div className="p-4 pb-0">
+              <div className="p-3 sm:p-4 pb-0">
                 <SessionInfo />
               </div>
               <ChatContainer className="flex-1" />
             </div>
           ) : activeTab === 'documents' ? (
             <div className="h-full overflow-auto">
-              <div className="max-w-4xl mx-auto p-4 md:p-6">
+              <div className="max-w-4xl mx-auto p-3 sm:p-4 md:p-6">
                 <SessionInfo />
                 <DocumentManager 
                   sessionId={session?.session_id || ''}
@@ -97,7 +100,7 @@ export default function ChatPage() {
             </div>
           ) : activeTab === 'presentations' ? (
             <div className="h-full overflow-auto">
-              <div className="max-w-6xl mx-auto p-4 md:p-6">
+              <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
                 <SessionInfo />
                 <PresentationContainer 
                   sessionId={session?.session_id || ''}
@@ -110,6 +113,11 @@ export default function ChatPage() {
         {/* Footer */}
         <Footer />
       </div>
+
+      {/* PWA Components */}
+      <InstallPrompt />
+      <IOSInstallPrompt />
+      <OfflineIndicator />
     </div>
   )
 }

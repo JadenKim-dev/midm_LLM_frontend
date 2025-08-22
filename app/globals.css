@@ -114,3 +114,33 @@
 .typing-dot:nth-child(2) {
   animation-delay: -0.16s;
 }
+
+/* iOS 줌 방지: 모든 입력 요소 폰트 크기 16px 이상 */
+@layer components {
+  /* 입력 필드들 */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="url"],
+  input[type="tel"],
+  input[type="number"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  /* Tailwind Input 컴포넌트 */
+  .input-base {
+    font-size: 16px !important;
+  }
+}
+
+/* iOS Safari 특정 줌 방지 */
+@supports (-webkit-touch-callout: none) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}

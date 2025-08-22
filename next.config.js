@@ -1,3 +1,23 @@
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development', // PWA를 개발 환경에서는 비활성화
+  runtimeCaching: [
+    {
+      urlPattern: /^https?.*/,
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'offlineCache',
+        expiration: {
+          maxEntries: 200,
+          maxAgeSeconds: 24 * 60 * 60, // 24 hours
+        },
+      },
+    },
+  ],
+})
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
@@ -25,4 +45,4 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+module.exports = withPWA(nextConfig)

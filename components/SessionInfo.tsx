@@ -43,12 +43,12 @@ export function SessionInfo() {
   return (
     <Card className="mb-4 bg-gray-50 border-gray-200">
       <CardContent className="p-3">
-        <div className="flex items-center justify-between text-sm text-gray-600">
-          <div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-gray-600">
+          <div className="truncate">
             <span className="font-medium">세션:</span> {sessionInfo.sessionId?.slice(-8)}
           </div>
           {sessionInfo.timeUntilExpiry && (
-            <div>
+            <div className="truncate sm:text-right">
               <span className="font-medium">만료까지:</span> {sessionInfo.timeUntilExpiry}
             </div>
           )}

@@ -161,6 +161,7 @@ export function MessageInput({
               placeholder={getPlaceholderText()}
               disabled={disabled || isLoading}
               className={`flex-1 h-11 ${useRAG ? 'border-blue-200 focus:border-blue-400' : ''}`}
+              style={{ fontSize: '16px' }}
               autoFocus
             />
             

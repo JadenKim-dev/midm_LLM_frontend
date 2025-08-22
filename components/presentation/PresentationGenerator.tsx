@@ -158,6 +158,7 @@ export default function PresentationGenerator({ sessionId, onAnalysisComplete }:
               onChange={(e) => setTopic(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && !isAnalyzing && handleAnalyze()}
               disabled={isAnalyzing}
+              style={{ fontSize: '16px' }}
             />
             <Button 
               onClick={handleAnalyze}
@@ -192,7 +193,8 @@ export default function PresentationGenerator({ sessionId, onAnalysisComplete }:
                   value={topK}
                   onChange={(e) => setTopK(Number(e.target.value))}
                   disabled={isAnalyzing}
-                  className="px-2 py-1 border rounded text-sm"
+                  className="px-2 py-1 border rounded text-base"
+                  style={{ fontSize: '16px' }}
                 >
                   <option value={3}>3개</option>
                   <option value={5}>5개</option>

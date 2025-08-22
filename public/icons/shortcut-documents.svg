@@ -1,0 +1,10 @@
+<svg width="192" height="192" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <defs>
+    <style>
+      .bg { fill: #3b82f6; }
+      .icon { font-family: system-ui, -apple-system, sans-serif; font-size: 96px; }
+    </style>
+  </defs>
+  <rect class="bg" width="192" height="192" rx="19.200000000000003"/>
+  <text class="icon" x="50%" y="50%" text-anchor="middle" dy="0.35em" fill="white">📄</text>
+</svg>

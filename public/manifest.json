@@ -1,25 +1,119 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
-  "icons": [
+  "name": "AI Chatbot - 인공지능 채팅 도우미",
+  "short_name": "AI Chatbot",
+  "description": "문서 기반 RAG를 지원하는 AI 채팅 도우미입니다. 오프라인에서도 사용 가능합니다.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "ko",
+  "categories": ["productivity", "business", "education"],
+  "screenshots": [
     {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "src": "/screenshots/desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "데스크톱 화면"
     },
     {
-      "src": "logo192.png",
+      "src": "/screenshots/mobile.png",
+      "sizes": "375x812",
       "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "logo512.png",
-      "type": "image/png",
-      "sizes": "512x512"
+      "form_factor": "narrow",
+      "label": "모바일 화면"
     }
   ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "새 채팅 시작",
+      "short_name": "새 채팅",
+      "description": "새로운 채팅 세션을 시작합니다",
+      "url": "/?action=new-chat",
+      "icons": [
+        {
+          "src": "/icons/shortcut-new-chat.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "문서 관리",
+      "short_name": "문서",
+      "description": "문서를 업로드하고 관리합니다",
+      "url": "/?tab=documents",
+      "icons": [
+        {
+          "src": "/icons/shortcut-documents.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "발표자료 생성",
+      "short_name": "발표자료",
+      "description": "AI로 발표자료를 생성합니다",
+      "url": "/?tab=presentations",
+      "icons": [
+        {
+          "src": "/icons/shortcut-presentations.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
 }

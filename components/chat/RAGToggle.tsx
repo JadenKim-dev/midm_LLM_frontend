@@ -39,35 +39,35 @@ export function RAGToggle({
       <Card className={`transition-all duration-200 ${
         useRAG ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:shadow-md'
       } ${isDisabled ? 'opacity-50' : ''}`}>
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-center space-x-3 min-w-0">
               <div className={`
-                p-2 rounded-lg transition-colors
+                p-2 rounded-lg transition-colors shrink-0
                 ${useRAG ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'}
               `}>
-                <FileText className="h-5 w-5" />
+                <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
               
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center space-x-2">
-                  <h3 className="font-medium text-gray-900">RAG 기능</h3>
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base">RAG 기능</h3>
                   {useRAG && (
-                    <Badge variant="default" className="bg-blue-500 text-xs">
+                    <Badge variant="default" className="bg-blue-500 text-xs shrink-0">
                       활성화
                     </Badge>
                   )}
                 </div>
                 
-                <div className="flex items-center space-x-2 mt-1">
+                <div className="mt-1">
                   {isLoading ? (
                     <div className="flex items-center space-x-1 text-xs text-gray-500">
                       <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-400" />
                       <span>문서 확인 중...</span>
                     </div>
                   ) : (
-                    <>
-                      <span className="text-xs text-gray-500">
+                    <div className="space-y-1">
+                      <span className="text-xs text-gray-500 block">
                         {documentCount > 0 
                           ? `${documentCount}개 문서 사용 가능`
                           : '사용 가능한 문서 없음'
@@ -75,19 +75,19 @@ export function RAGToggle({
                       </span>
                       {documentCount === 0 && (
                         <div className="flex items-center space-x-1">
-                          <Info className="h-3 w-3 text-amber-500" />
-                          <span className="text-xs text-amber-600">
+                          <Info className="h-3 w-3 text-amber-500 shrink-0" />
+                          <span className="text-xs text-amber-600 truncate">
                             문서를 먼저 업로드하세요
                           </span>
                         </div>
                       )}
-                    </>
+                    </div>
                   )}
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center justify-end space-x-2 shrink-0">
               {/* RAG 설정 버튼 (향후 확장용) */}
               <Button
                 variant="ghost"
@@ -126,13 +126,13 @@ export function RAGToggle({
           {/* RAG 활성화 시 추가 정보 */}
           {useRAG && documentCount > 0 && (
             <div className="mt-3 pt-3 border-t border-blue-200">
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center space-x-4 text-blue-700">
-                  <span>📄 관련 문서 자동 검색</span>
-                  <span>🎯 정확도 향상</span>
-                  <span>📚 컨텍스트 제공</span>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs">
+                <div className="flex flex-wrap items-center gap-2 sm:space-x-2 text-blue-700">
+                  <span className="whitespace-nowrap">📄 관련 문서 자동 검색</span>
+                  <span className="whitespace-nowrap">🎯 정확도 향상</span>
+                  <span className="whitespace-nowrap">📚 컨텍스트 제공</span>
                 </div>
-                <Badge variant="outline" className="text-blue-600 border-blue-300">
+                <Badge variant="outline" className="text-blue-600 border-blue-300 shrink-0 self-start sm:self-center">
                   최대 5개 문서
                 </Badge>
               </div>
