@@ -115,6 +115,8 @@ export interface ChatUIOptions {
 export interface AnalysisRequest {
   session_id: string
   topic: string
+  use_rag?: boolean
+  top_k?: number
 }
 
 export interface Analysis {

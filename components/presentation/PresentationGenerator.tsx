@@ -23,6 +23,8 @@ export default function PresentationGenerator({ sessionId, onAnalysisComplete }:
   const [currentStep, setCurrentStep] = useState<string>('')
   const [currentMessage, setCurrentMessage] = useState<string>('')
   const [completedAnalysis, setCompletedAnalysis] = useState<Analysis | null>(null)
+  const [useRag, setUseRag] = useState(false)
+  const [topK, setTopK] = useState(5)
   
   const eventSourceRef = useRef<EventSource | null>(null)
 
@@ -38,7 +40,9 @@ export default function PresentationGenerator({ sessionId, onAnalysisComplete }:
     try {
       const request: AnalysisRequest = {
         session_id: sessionId,
-        topic: topic.trim()
+        topic: topic.trim(),
+        use_rag: useRag,
+        top_k: topK
       }
 
       const stream = await apiClient.analyzeTopicStream(request)
@@ -151,6 +155,41 @@ export default function PresentationGenerator({ sessionId, onAnalysisComplete }:
             >
               {isAnalyzing ? '분석중...' : '분석 시작'}
             </Button>
+          </div>
+
+          {/* RAG 옵션 */}
+          <div className="bg-gray-50 p-3 rounded-lg space-y-3">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="useRag"
+                checked={useRag}
+                onChange={(e) => setUseRag(e.target.checked)}
+                disabled={isAnalyzing}
+                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+              />
+              <label htmlFor="useRag" className="text-sm font-medium text-gray-700">
+                RAG 기능 사용 (업로드된 문서 참조)
+              </label>
+            </div>
+            
+            {useRag && (
+              <div className="flex items-center gap-2 ml-6">
+                <label className="text-sm text-gray-600">
+                  참조할 문서 수:
+                </label>
+                <select
+                  value={topK}
+                  onChange={(e) => setTopK(Number(e.target.value))}
+                  disabled={isAnalyzing}
+                  className="px-2 py-1 border rounded text-sm"
+                >
+                  <option value={3}>3개</option>
+                  <option value={5}>5개</option>
+                  <option value={10}>10개</option>
+                </select>
+              </div>
+            )}
           </div>
 
           {isAnalyzing && (
