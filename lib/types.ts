@@ -110,3 +110,53 @@ export interface ChatUIOptions {
   maxTokens: number
   temperature: number
 }
+
+// 발표자료 관련 타입들
+export interface AnalysisRequest {
+  session_id: string
+  topic: string
+}
+
+export interface Analysis {
+  analysis_id: string
+  session_id: string
+  topic: string
+  content: string
+  created_at: string
+}
+
+export interface ConversionRequest {
+  analysis_id: string
+  theme?: string
+}
+
+export interface Presentation {
+  presentation_id: string
+  session_id: string
+  title: string
+  topic: string
+  content: string
+  marp_content: string
+  theme: string
+  created_at: string
+  updated_at: string
+}
+
+export interface PresentationListResponse {
+  session_id: string
+  presentations: Presentation[]
+  total_count: number
+}
+
+// 스트리밍 응답 타입들
+export interface StreamingChunk {
+  type: 'start' | 'progress' | 'content_chunk' | 'marp_chunk' | 'step_complete' | 'complete' | 'error'
+  message?: string
+  step?: string
+  content?: string
+  analysis_id?: string
+  presentation_id?: string
+  topic?: string
+  analysis?: Analysis
+  presentation?: Presentation
+}
