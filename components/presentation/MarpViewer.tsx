@@ -172,11 +172,11 @@ backgroundColor: #fff
         
         <CardContent className={`${isFullscreen ? 'h-full flex flex-col' : ''}`}>
           {/* 슬라이드 콘텐츠 */}
-          <div className={`bg-white border rounded-lg overflow-hidden ${isFullscreen ? 'flex-1' : 'min-h-96'}`}>
+          <div className={`bg-white border rounded-lg overflow-hidden ${isFullscreen ? 'flex-1' : 'min-h-[600px]'}`}>
             <MarpRenderer
               markdown={slides[currentSlide]}
               theme={presentation.theme}
-              className={`w-full ${isFullscreen ? 'h-full' : 'h-96'}`}
+              className={`w-full ${isFullscreen ? 'h-full' : 'h-[600px]'}`}
             />
           </div>
 

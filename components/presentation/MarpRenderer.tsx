@@ -37,7 +37,7 @@ export default function MarpRenderer({ markdown, theme = 'default', className = 
               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
               justify-content: center;
               text-align: center;
-              padding: 80px;
+              padding: 60px 80px;
             }
             h1, h2, h3 { color: white; }
             h1 { font-size: 2.5em; margin-bottom: 0.5em; }
@@ -54,7 +54,7 @@ export default function MarpRenderer({ markdown, theme = 'default', className = 
               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
               justify-content: center;
               text-align: center;
-              padding: 80px;
+              padding: 60px 80px;
             }
             h1 { 
               color: #2563eb; 
@@ -80,7 +80,7 @@ export default function MarpRenderer({ markdown, theme = 'default', className = 
               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
               justify-content: center;
               text-align: center;
-              padding: 80px;
+              padding: 60px 80px;
               border: 1px solid #e5e7eb;
             }
             h1 { 
@@ -134,13 +134,21 @@ export default function MarpRenderer({ markdown, theme = 'default', className = 
         .marp-renderer section {
           width: 100%;
           height: 100%;
+          min-height: 400px;
           display: flex;
           flex-direction: column;
           box-sizing: border-box;
+          transform-origin: center center;
         }
         .marp-renderer img {
           max-width: 100%;
           height: auto;
+        }
+        .marp-renderer {
+          overflow: auto;
+        }
+        .marp-renderer section h1 {
+          margin-top: 0;
         }
       `
     }
