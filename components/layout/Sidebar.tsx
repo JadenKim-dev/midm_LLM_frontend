@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { MessageCircle, FileText, Plus } from 'lucide-react'
+import { MessageCircle, FileText, Plus, Presentation } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -32,6 +32,7 @@ export function Sidebar({
   const tabs = [
     { id: 'chat' as TabType, label: '채팅', icon: MessageCircle },
     { id: 'documents' as TabType, label: '문서', icon: FileText },
+    { id: 'presentations' as TabType, label: '발표자료', icon: Presentation },
   ]
 
   return (
@@ -118,7 +119,7 @@ export function Sidebar({
                 </div>
               </ScrollArea>
             </>
-          ) : (
+          ) : activeTab === 'documents' ? (
             <>
               {/* Documents Tab Content */}
               <div className="flex-1 flex items-center justify-center p-8">
@@ -131,7 +132,20 @@ export function Sidebar({
                 </div>
               </div>
             </>
-          )}
+          ) : activeTab === 'presentations' ? (
+            <>
+              {/* Presentations Tab Content */}
+              <div className="flex-1 flex items-center justify-center p-8">
+                <div className="text-center text-muted-foreground">
+                  <Presentation className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-sm">
+                    발표자료 생성은 메인 영역에서<br />
+                    확인할 수 있습니다.
+                  </p>
+                </div>
+              </div>
+            </>
+          ) : null}
         </div>
 
         {/* Sidebar Footer */}

@@ -103,7 +103,7 @@ export interface ExtendedMessage extends Message {
 }
 
 // UI 관련 타입들
-export type TabType = 'chat' | 'documents'
+export type TabType = 'chat' | 'documents' | 'presentations'
 
 export interface ChatUIOptions {
   useRAG: boolean
