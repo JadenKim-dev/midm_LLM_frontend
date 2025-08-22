@@ -5,6 +5,7 @@ import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { Presentation } from '@/lib/types'
+import MarpRenderer from './MarpRenderer'
 
 interface MarpViewerProps {
   presentation: Presentation
@@ -19,14 +20,31 @@ export default function MarpViewer({ presentation, onClose }: MarpViewerProps) {
 
   useEffect(() => {
     // Marp 마크다운을 슬라이드별로 분할
-    const slideContent = presentation.marp_content
-      .split('---')
-      .filter(slide => slide.trim())
-      .map(slide => slide.trim())
+    const parts = presentation.marp_content.split(/^---$/gm)
     
-    setSlides(slideContent)
+    // 첫 번째 부분이 Marp 헤더라면 제거
+    let slideContent = parts
+    if (parts[0] && parts[0].includes('marp: true')) {
+      slideContent = parts.slice(1)
+    }
+    
+    // 각 슬라이드에 Marp 헤더 추가
+    const marpHeader = `---
+marp: true
+theme: ${presentation.theme || 'default'}
+paginate: true
+backgroundColor: #fff
+---
+
+`
+    
+    const processedSlides = slideContent
+      .filter(slide => slide.trim())
+      .map(slide => marpHeader + slide.trim())
+    
+    setSlides(processedSlides)
     setCurrentSlide(0)
-  }, [presentation.marp_content])
+  }, [presentation.marp_content, presentation.theme])
 
   const nextSlide = () => {
     if (currentSlide < slides.length - 1) {
@@ -101,21 +119,6 @@ export default function MarpViewer({ presentation, onClose }: MarpViewerProps) {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [currentSlide, slides.length, isFullscreen])
 
-  const renderMarkdown = (markdown: string) => {
-    // 간단한 마크다운 렌더링 (실제로는 마크다운 파서 라이브러리 사용 권장)
-    return markdown
-      .replace(/^# (.*$)/gm, '<h1 class="text-4xl font-bold mb-6 text-center">$1</h1>')
-      .replace(/^## (.*$)/gm, '<h2 class="text-3xl font-semibold mb-4">$1</h2>')
-      .replace(/^### (.*$)/gm, '<h3 class="text-2xl font-medium mb-3">$1</h3>')
-      .replace(/^\* (.*$)/gm, '<li class="mb-2">$1</li>')
-      .replace(/^- (.*$)/gm, '<li class="mb-2">$1</li>')
-      .replace(/^\d+\. (.*$)/gm, '<li class="mb-2">$1</li>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold">$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
-      .replace(/`(.*?)`/g, '<code class="bg-gray-200 px-2 py-1 rounded text-sm">$1</code>')
-      .replace(/\n\n/g, '</p><p class="mb-4">')
-      .replace(/\n/g, '<br>')
-  }
 
   if (slides.length === 0) {
     return (
@@ -169,12 +172,11 @@ export default function MarpViewer({ presentation, onClose }: MarpViewerProps) {
         
         <CardContent className={`${isFullscreen ? 'h-full flex flex-col' : ''}`}>
           {/* 슬라이드 콘텐츠 */}
-          <div className={`bg-white border rounded-lg p-8 ${isFullscreen ? 'flex-1 flex items-center justify-center' : 'min-h-96'}`}>
-            <div 
-              className={`prose max-w-none ${isFullscreen ? 'text-center max-w-4xl' : ''}`}
-              dangerouslySetInnerHTML={{ 
-                __html: `<div class="mb-4">${renderMarkdown(slides[currentSlide])}</div>` 
-              }}
+          <div className={`bg-white border rounded-lg overflow-hidden ${isFullscreen ? 'flex-1' : 'min-h-96'}`}>
+            <MarpRenderer
+              markdown={slides[currentSlide]}
+              theme={presentation.theme}
+              className={`w-full ${isFullscreen ? 'h-full' : 'h-96'}`}
             />
           </div>
 

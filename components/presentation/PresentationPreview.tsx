@@ -7,6 +7,7 @@ import { Badge } from '../ui/badge'
 import { Skeleton } from '../ui/skeleton'
 import { ConversionRequest, StreamingChunk, Presentation, Analysis } from '@/lib/types'
 import { apiClient } from '@/lib/api'
+import MarpRenderer from './MarpRenderer'
 
 interface PresentationPreviewProps {
   analysis: Analysis
@@ -195,13 +196,33 @@ export default function PresentationPreview({ analysis, sessionId, onConversionC
                 <Skeleton className="h-4 w-3/5" />
               </div>
             ) : (
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <pre className="text-sm whitespace-pre-wrap overflow-x-auto">
-                  {marpContent}
-                  {isConverting && (
-                    <span className="inline-block w-2 h-5 bg-blue-500 animate-pulse ml-1" />
-                  )}
-                </pre>
+              <div className="space-y-4">
+                {/* 렌더링된 미리보기 */}
+                <div className="bg-white border rounded-lg overflow-hidden">
+                  <div className="p-2 bg-gray-50 border-b text-sm font-medium">미리보기</div>
+                  <div className="h-64 overflow-auto">
+                    <MarpRenderer
+                      markdown={marpContent + (isConverting ? '\n\n로딩 중...' : '')}
+                      theme={selectedTheme}
+                      className="w-full h-full"
+                    />
+                  </div>
+                </div>
+                
+                {/* 마크다운 소스 코드 */}
+                <details className="bg-gray-50 rounded-lg">
+                  <summary className="p-3 cursor-pointer text-sm font-medium hover:bg-gray-100">
+                    마크다운 소스 보기
+                  </summary>
+                  <div className="p-4 border-t">
+                    <pre className="text-sm whitespace-pre-wrap overflow-x-auto">
+                      {marpContent}
+                      {isConverting && (
+                        <span className="inline-block w-2 h-5 bg-blue-500 animate-pulse ml-1" />
+                      )}
+                    </pre>
+                  </div>
+                </details>
               </div>
             )}
           </CardContent>
