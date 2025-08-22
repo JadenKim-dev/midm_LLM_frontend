@@ -36,21 +36,21 @@ export function MessageList({ messages, isLoading, className }: MessageListProps
         }`}
       >
         {/* Avatar */}
-        <Avatar className="w-8 h-8 flex-shrink-0">
+        <Avatar className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0">
           <AvatarFallback className={isUser ? 'bg-primary text-primary-foreground' : 'bg-secondary'}>
             {isUser ? '👤' : '🤖'}
           </AvatarFallback>
         </Avatar>
 
         {/* Message Content */}
-        <div className={`flex flex-col max-w-[70%] ${isUser ? 'items-end' : 'items-start'}`}>
+        <div className={`flex flex-col max-w-[85%] sm:max-w-[70%] ${isUser ? 'items-end' : 'items-start'}`}>
           <Card className={`${
             isUser 
               ? 'bg-primary text-primary-foreground' 
               : 'bg-muted'
           }`}>
-            <CardContent className="p-3">
-              <div className="text-sm whitespace-pre-wrap break-words">
+            <CardContent className="p-3 sm:p-4">
+              <div className="text-sm whitespace-pre-wrap break-words leading-relaxed">
                 {message.content}
               </div>
             </CardContent>
@@ -108,13 +108,13 @@ export function MessageList({ messages, isLoading, className }: MessageListProps
 
   return (
     <ScrollArea ref={scrollAreaRef} className={`${className} scrollbar-thin`}>
-      <div className="p-4 space-y-4">
+      <div className="p-2 sm:p-4 space-y-3 sm:space-y-4">
         {/* Welcome Message */}
         {messages.length === 0 && !isLoading && (
-          <div className="text-center text-muted-foreground py-8">
-            <div className="text-4xl mb-4">🤖</div>
-            <h3 className="text-lg font-semibold mb-2">Welcome to AI Chat!</h3>
-            <p className="text-sm">Start a conversation by typing a message below.</p>
+          <div className="text-center text-muted-foreground py-6 sm:py-8">
+            <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">🤖</div>
+            <h3 className="text-base sm:text-lg font-semibold mb-2">Welcome to AI Chat!</h3>
+            <p className="text-xs sm:text-sm px-4">Start a conversation by typing a message below.</p>
           </div>
         )}
 

@@ -44,7 +44,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
       />
       
       {/* Messages Area */}
-      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full p-4">
+      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full p-2 sm:p-4">
         <MessageList 
           messages={messages}
           isLoading={isLoading}
@@ -56,7 +56,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
           onMessageSent={addMessage}
           onStreamUpdate={updateLastMessage}
           onSendMessage={sendMessage}
-          className="mt-4"
+          className="mt-2 sm:mt-4"
           disabled={!session || isLoading}
         />
       </div>

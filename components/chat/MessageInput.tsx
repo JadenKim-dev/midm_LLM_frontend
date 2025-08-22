@@ -151,7 +151,7 @@ export function MessageInput({
       )}
       
       <Card className={useRAG ? 'ring-1 ring-blue-200 bg-blue-50/30' : ''}>
-        <CardContent className="p-4">
+        <CardContent className="p-3 sm:p-4">
           <form onSubmit={handleSubmit} className="flex gap-2">
             <Input
               ref={inputRef}
@@ -160,7 +160,7 @@ export function MessageInput({
               onKeyPress={handleKeyPress}
               placeholder={getPlaceholderText()}
               disabled={disabled || isLoading}
-              className={`flex-1 ${useRAG ? 'border-blue-200 focus:border-blue-400' : ''}`}
+              className={`flex-1 h-11 ${useRAG ? 'border-blue-200 focus:border-blue-400' : ''}`}
               autoFocus
             />
             
@@ -168,15 +168,16 @@ export function MessageInput({
               type="submit"
               disabled={disabled || isLoading || !input.trim()}
               size="icon"
-              className={useRAG ? 'bg-blue-600 hover:bg-blue-700' : ''}
+              className={`h-11 w-11 ${useRAG ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
             >
               {isLoading ? '⏳' : useRAG ? '🔍' : '📤'}
             </Button>
           </form>
           
-          <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
-            <div className="flex items-center space-x-4">
-              <span>Enter to send, Shift+Enter for new line</span>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-2 text-xs text-muted-foreground space-y-1 sm:space-y-0">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0">
+              <span className="hidden sm:inline">Enter to send, Shift+Enter for new line</span>
+              <span className="sm:hidden">Tap to send</span>
               {useRAG && (
                 <span className="text-blue-600 font-medium">
                   🔍 RAG Mode Active
@@ -184,7 +185,7 @@ export function MessageInput({
               )}
             </div>
             {sessionId && (
-              <span className="font-mono">Session: {sessionId.slice(-8)}</span>
+              <span className="font-mono text-xs">Session: {sessionId.slice(-8)}</span>
             )}
           </div>
         </CardContent>

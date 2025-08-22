@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { MessageCircle, FileText, Plus, Presentation } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { MessageCircle, FileText, Plus, Presentation, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -14,6 +14,8 @@ interface SidebarProps {
   onTabChange?: (tab: TabType) => void
   onNewChat?: () => void
   onClearSession?: () => void
+  isMobile?: boolean
+  onClose?: () => void
 }
 
 export function Sidebar({ 
@@ -21,7 +23,9 @@ export function Sidebar({
   activeTab = 'chat', 
   onTabChange,
   onNewChat,
-  onClearSession
+  onClearSession,
+  isMobile,
+  onClose
 }: SidebarProps) {
   const [sessions] = useState([
     { id: '1', title: 'General Chat', lastMessage: 'Hello there!', timestamp: '10:30 AM' },
@@ -35,9 +39,39 @@ export function Sidebar({
     { id: 'presentations' as TabType, label: '발표자료', icon: Presentation },
   ]
 
+  // 모바일에서 ESC 키로 사이드바 닫기
+  useEffect(() => {
+    if (!isMobile) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose?.()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isMobile, onClose])
+
   return (
     <aside className={className}>
       <div className="flex flex-col h-full">
+        {/* Mobile Header with Close Button */}
+        {isMobile && (
+          <div className="flex items-center justify-between p-4 border-b">
+            <h2 className="text-lg font-semibold">메뉴</h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="h-8 w-8 p-0"
+            >
+              <X className="h-5 w-5" />
+              <span className="sr-only">닫기</span>
+            </Button>
+          </div>
+        )}
+
         {/* Tab Navigation */}
         <div className="p-4 border-b">
           <div className="flex bg-gray-100 rounded-lg p-1">
@@ -50,7 +84,7 @@ export function Sidebar({
                   key={tab.id}
                   onClick={() => onTabChange?.(tab.id)}
                   className={`
-                    flex-1 flex items-center justify-center space-x-1 py-2 px-3 rounded-md text-sm font-medium transition-colors
+                    flex-1 flex items-center justify-center space-x-1 py-3 px-2 rounded-md text-sm font-medium transition-colors
                     ${isActive 
                       ? 'bg-white text-gray-900 shadow-sm' 
                       : 'text-gray-600 hover:text-gray-900'
@@ -72,8 +106,8 @@ export function Sidebar({
               {/* New Chat Button */}
               <div className="p-4 border-b space-y-2">
                 <Button 
-                  className="w-full" 
-                  size="sm"
+                  className="w-full h-11" 
+                  size="default"
                   onClick={onNewChat}
                 >
                   <Plus className="h-4 w-4 mr-2" />
@@ -82,8 +116,8 @@ export function Sidebar({
                 {onClearSession && (
                   <Button 
                     variant="outline"
-                    className="w-full" 
-                    size="sm"
+                    className="w-full h-11" 
+                    size="default"
                     onClick={onClearSession}
                   >
                     세션 초기화
@@ -99,15 +133,15 @@ export function Sidebar({
                   </div>
                   
                   {sessions.map((session) => (
-                    <Card key={session.id} className="cursor-pointer hover:bg-accent transition-colors">
-                      <CardContent className="p-3">
-                        <div className="flex items-start justify-between mb-1">
-                          <h4 className="text-sm font-medium truncate">{session.title}</h4>
-                          <Badge variant="outline" className="text-xs ml-2">
+                    <Card key={session.id} className="cursor-pointer hover:bg-accent transition-colors touch-manipulation">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <h4 className="text-sm font-medium truncate pr-2">{session.title}</h4>
+                          <Badge variant="outline" className="text-xs flex-shrink-0">
                             {session.id}
                           </Badge>
                         </div>
-                        <p className="text-xs text-muted-foreground truncate mb-1">
+                        <p className="text-xs text-muted-foreground truncate mb-2">
                           {session.lastMessage}
                         </p>
                         <div className="text-xs text-muted-foreground">
