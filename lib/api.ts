@@ -250,7 +250,7 @@ export class ApiClient {
 
   // 발표자료 관련 메서드들
   async analyzeTopicStream(request: AnalysisRequest): Promise<ReadableStream> {
-    const response = await fetch(`${this.backendUrl}/presentations/analyze`, {
+    const response = await fetch(`${this.backendUrl}/presentation/analyze`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -270,7 +270,7 @@ export class ApiClient {
   }
 
   async convertToPresentationStream(request: ConversionRequest): Promise<ReadableStream> {
-    const response = await fetch(`${this.backendUrl}/presentations/convert`, {
+    const response = await fetch(`${this.backendUrl}/presentation/convert`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -290,7 +290,7 @@ export class ApiClient {
   }
 
   async getPresentationList(sessionId: string): Promise<PresentationListResponse> {
-    const response = await fetch(`${this.backendUrl}/presentations/list/${sessionId}`, {
+    const response = await fetch(`${this.backendUrl}/presentation/list/${sessionId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
