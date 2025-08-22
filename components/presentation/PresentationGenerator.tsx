@@ -6,7 +6,7 @@ import { Input } from '../ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { Skeleton } from '../ui/skeleton'
-import { AnalysisRequest, StreamingChunk, Analysis } from '@/lib/types'
+import { AnalysisRequest, StreamingChunk, Analysis, ReferenceDocument } from '@/lib/types'
 import { apiClient } from '@/lib/api'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -25,6 +25,8 @@ export default function PresentationGenerator({ sessionId, onAnalysisComplete }:
   const [completedAnalysis, setCompletedAnalysis] = useState<Analysis | null>(null)
   const [useRag, setUseRag] = useState(false)
   const [topK, setTopK] = useState(5)
+  const [referenceDocuments, setReferenceDocuments] = useState<ReferenceDocument[]>([])
+  const [selectedDocument, setSelectedDocument] = useState<ReferenceDocument | null>(null)
   
   const eventSourceRef = useRef<EventSource | null>(null)
 
@@ -36,6 +38,8 @@ export default function PresentationGenerator({ sessionId, onAnalysisComplete }:
     setCurrentStep('')
     setCurrentMessage('')
     setCompletedAnalysis(null)
+    setReferenceDocuments([])
+    setSelectedDocument(null)
 
     try {
       const request: AnalysisRequest = {
@@ -93,6 +97,12 @@ export default function PresentationGenerator({ sessionId, onAnalysisComplete }:
       case 'progress':
         setCurrentStep(chunk.step || '')
         setCurrentMessage(chunk.message || '')
+        break
+
+      case 'reference_documents':
+        if (chunk.reference_documents) {
+          setReferenceDocuments(chunk.reference_documents)
+        }
         break
         
       case 'content_chunk':
@@ -253,6 +263,88 @@ export default function PresentationGenerator({ sessionId, onAnalysisComplete }:
                 )}
               </div>
             )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* 참조 문서 목록 */}
+      {referenceDocuments.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <span>참조된 문서</span>
+              <Badge variant="outline">{referenceDocuments.length}개</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {referenceDocuments.map((doc, index) => (
+                <div
+                  key={index}
+                  className="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                  onClick={() => setSelectedDocument(doc)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-sm">{doc.document_title}</h4>
+                      <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                        {doc.chunk_content}
+                      </p>
+                    </div>
+                    <Badge variant="secondary" className="ml-2 text-xs">
+                      {(doc.similarity_score * 100).toFixed(1)}%
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* 선택된 문서 상세 정보 */}
+      {selectedDocument && (
+        <Card className="border-blue-200">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-lg">문서 상세 정보</CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedDocument(null)}
+            >
+              ✕
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div>
+                <h5 className="font-medium text-sm text-gray-700">문서 제목</h5>
+                <p className="text-sm">{selectedDocument.document_title}</p>
+              </div>
+              <div>
+                <h5 className="font-medium text-sm text-gray-700">유사도 점수</h5>
+                <p className="text-sm">{(selectedDocument.similarity_score * 100).toFixed(2)}%</p>
+              </div>
+              <div>
+                <h5 className="font-medium text-sm text-gray-700">문서 내용 (미리보기)</h5>
+                <div className="text-sm bg-gray-50 p-3 rounded max-h-32 overflow-y-auto">
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      p: ({node, ...props}) => <p className="mb-2 text-xs leading-relaxed" {...props} />,
+                      h1: ({node, ...props}) => <h1 className="text-sm font-bold mb-1" {...props} />,
+                      h2: ({node, ...props}) => <h2 className="text-sm font-semibold mb-1" {...props} />,
+                      ul: ({node, ...props}) => <ul className="mb-2 pl-3 space-y-0.5" {...props} />,
+                      li: ({node, ...props}) => <li className="text-xs" {...props} />,
+                      strong: ({node, ...props}) => <strong className="font-semibold" {...props} />,
+                      code: ({node, ...props}) => <code className="bg-gray-200 px-1 rounded text-xs font-mono" {...props} />,
+                    }}
+                  >
+                    {selectedDocument.chunk_content}
+                  </ReactMarkdown>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       )}

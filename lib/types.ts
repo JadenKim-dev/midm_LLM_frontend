@@ -150,9 +150,19 @@ export interface PresentationListResponse {
   total_count: number
 }
 
+// RAG 참조 문서 정보
+export interface ReferenceDocument {
+  document_id: string
+  document_title: string
+  chunk_content: string
+  similarity_score: number
+  chunk_id?: string
+  chunk_index?: number
+}
+
 // 스트리밍 응답 타입들
 export interface StreamingChunk {
-  type: 'start' | 'progress' | 'content_chunk' | 'marp_chunk' | 'step_complete' | 'complete' | 'error'
+  type: 'start' | 'progress' | 'content_chunk' | 'marp_chunk' | 'step_complete' | 'complete' | 'error' | 'reference_documents'
   message?: string
   step?: string
   content?: string
@@ -163,4 +173,5 @@ export interface StreamingChunk {
   topic?: string
   analysis?: Analysis
   presentation?: Presentation
+  reference_documents?: ReferenceDocument[]  // RAG에서 참조된 문서들
 }
