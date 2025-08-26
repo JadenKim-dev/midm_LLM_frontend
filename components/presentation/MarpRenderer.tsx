@@ -164,6 +164,7 @@ export default function MarpRenderer({ markdown, theme = 'default', className = 
               width: calc(100% - 80px);
               left: 40px;
               bottom: 40px;
+              margin-top: auto;
             }
 
             footer img {

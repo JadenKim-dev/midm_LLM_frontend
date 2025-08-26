@@ -136,6 +136,7 @@ function getThemeStyles(theme: string): string {
           width: calc(100% - 80px);
           left: 40px;
           bottom: 40px;
+          margin-top: auto;
         }
 
         footer img {
