@@ -223,7 +223,7 @@ export default function PresentationPreview({ analysis, sessionId, onConversionC
                 {/* 렌더링된 미리보기 */}
                 <div className="bg-white border rounded-lg overflow-hidden">
                   <div className="p-2 bg-gray-50 border-b text-sm font-medium">미리보기</div>
-                  <div className="h-96 overflow-auto">
+                  <div className="h-[600px] overflow-auto">
                     <MarpRenderer
                       markdown={marpContent + (isConverting ? '\n\n로딩 중...' : '')}
                       theme={selectedTheme}
