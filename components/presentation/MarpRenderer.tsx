@@ -175,7 +175,6 @@ export default function MarpRenderer({ markdown, theme = 'default', className = 
               font-size: 16px;
               margin: 0;
               opacity: 0.7;
-              border-left: 3px solid #ccc;
               padding-left: 10px;
               padding-top: 5px;
               box-sizing: border-box;
@@ -198,7 +197,6 @@ export default function MarpRenderer({ markdown, theme = 'default', className = 
               width: 3px;
               height: 30px;
               margin-right: 10px;
-              background-color: rgba(0, 0, 0, 0.3);
             }
 
             h2::after {
@@ -206,7 +204,6 @@ export default function MarpRenderer({ markdown, theme = 'default', className = 
               display: block;
               width: 100%;
               height: 1px;
-              background-color: rgba(0, 0, 0, 0.1);
               margin-top: 10px;
             }
 
